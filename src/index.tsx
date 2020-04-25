@@ -1,0 +1,58 @@
+import { History } from 'history';
+import React, { StrictMode } from 'react';
+import { render } from 'react-dom';
+import { registerObserver } from 'react-perf-devtool';
+import { Router } from 'react-router-dom';
+import BroadcasterContext from 'contexts/broadcaster';
+import App from 'pages/App/App.component';
+import { Broadcaster } from 'services/broadcaster';
+import serviceWorker from 'serviceWorker';
+import history from 'utils/misc/history';
+
+if (process.env.NODE_ENV !== 'production') {
+    import('@welldone-software/why-did-you-render').then((whyDidYouUpdate) => whyDidYouUpdate.default(React, {
+        trackAllPureComponents: true,
+        collapseGroups: true,
+    }));
+}
+
+const broadcaster = new Broadcaster();
+
+/**
+ * String of the application.
+ * React strict mode implememnted.
+ */
+const root = (
+    <StrictMode>
+      <BroadcasterContext.Provider value={broadcaster}>
+        <App />
+      </BroadcasterContext.Provider>
+    </StrictMode>
+);
+
+if (process.env.NODE_ENV === 'production') {
+    broadcaster.onInit((shellHistory: History) => {
+        render(
+          <Router history={shellHistory}>{root}</Router>,
+          document.getElementById('root'),
+        );
+    });
+} else {
+    render(<Router history={history}>{root}</Router>, document.getElementById('root'));
+}
+
+broadcaster.onCookieChange(() => {
+  console.log('cookie changed in shell');
+});
+
+broadcaster.on('MSG', (msg) => {
+  console.log(`shell said ${msg}`);
+
+  broadcaster.emit('MSG', 'helloo');
+});
+
+registerObserver();
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+serviceWorker();
