@@ -15,7 +15,7 @@ describe('App', () => {
             </Router>,
         );
 
-        await wait(() => expect(document.title).toBe('CTS'));
+        await wait(() => expect(document.title).toBe('embibe'));
     });
 
     it('should set the required meta tags', async () => {
@@ -31,7 +31,7 @@ describe('App', () => {
             const metaTag = document.querySelector('meta[name="description"]');
             const content = metaTag ? metaTag.getAttribute('content') : null;
 
-            expect(content).toBe('CMS for Aasaanjobs');
+            expect(content).toBe('Embibe');
         });
     });
 });
